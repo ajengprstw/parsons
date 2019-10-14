@@ -1,0 +1,163 @@
+---
+title: "Parsons"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(parsons)
+library(gsheet)
+library(dplyr)
+library(ggplot2)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
+## Creating a parsons question
+
+### Using pass and fail conditions
+
+An alternative way to specify the correct answer(s) is to supply a pass_if() statment. Using `pass_if` and `fail_if` is a powerful way to provide feedback to your students.
+
+These `pass_if` and `fail_if` statements are evaluated in turn, until the first expectation evaluates to `TRUE`, and the `learnr` will provide the feedback in the `message`.
+
+You can specify `pass_if()` as well as `fail_if()` in any of the following ways:   
+- A character vector, that must be matched exatcly, or   
+- A function in the tradition form `function(x)...`, e.g. `function(x) length(x) <3`   
+- A function specified using the `rlang` tidy evaluation formula notation, e.g. `~length(.) < 3`
+
+### Features
+
+- For tidyverse problem_type, items (except the last) in the right hand column will have a %>%  appended, and for ggplot2 every line will be followed by a +.    
+- The initial values are shuffled into random answer order.
+
+### Limitations
+
+- it does not do any code evaluation   
+- it does not support identation   
+- it assumes code is from the tidyverse and only supports the magrittr pipe ( %>% ) operator   
+
+## Quiz 1
+
+
+**What are the top 5 Sub.Category measured by sum profit?**  
+
+```{r}
+retail <- read.csv("data_input/retail.csv")
+```
+
+Try to execute your solution here:
+```{r addition, exercise=TRUE, exercise.eval = TRUE}
+head(retail)
+```
+
+```{r quiz1}
+question_parsons(
+  initial = c(
+    "Accessories",
+    "Copiers",
+    "Binders",
+    "Phones",
+    "Paper"
+  ),
+  answer(
+    c(
+      "Copiers",
+      "Phones",
+      "Accessories",
+      "Paper",
+      "Binders"
+    ),
+    correct = TRUE
+  ),
+  fail_if(
+    ~ length(.) < 5,
+    "Provide more answer"
+  ),
+  submit_button = "submit answer"
+)
+```
+
+
+## Quiz 2
+
+*Which category product makes up our high-value profit*
+
+```{r quiz2}
+question_parsons(
+  initial = c(
+    "group_by(Category)",
+    "retail",
+    "arrange(desc(total_profit))",
+    "summarise(total_profit = sum(Profit))"
+  ),
+  answer(
+    c(
+      "retail",
+      "group_by(Category)",
+      "summarise(total_profit = sum(Profit))",
+     "arrange(desc(total_profit))"
+    ),
+    correct = TRUE
+  ),
+  fail_if(
+    ~ length(.) < 4,
+    "Provide more answer"
+  ),
+  fail_if(
+    ~{.[1] != "retail"},
+    message = "your solution should start with 'retail'"
+  ),
+  fail_if(
+    ~{.[2] != "group_by(Category"},
+    message = "you need to group_by first, before summarise"
+  )
+  ,
+  submit_button = "submit answer",
+  problem_type = "tidyverse",
+  allow_retry = TRUE
+)
+```
+
+
+
+
+## Quiz 3
+
+How to create this plot? (use `retail2` dataset)
+
+
+```{r}
+retail2 <- retail[1:100,]
+ggplot(retail2,aes(x = Category, y = Sales)) +
+  geom_boxplot() + geom_jitter() 
+```
+
+Try to execute your solution here:
+```{r addition2, exercise=TRUE, exercise.eval = TRUE}
+retail2 <- retail[1:100,]
+```
+
+
+```{r quiz}
+question_parsons(
+  initial = c(
+    "geom_boxplot()",
+    "geom_jitter() ",
+    "ggplot(retail2,aes(x = Category, y = Sales))"
+  ),
+  pass_if(
+    c(
+    "ggplot(retail2,aes(x = Category, y = Sales))",
+    "geom_boxplot()",
+      "geom_jitter() "
+    )
+  ),submit_button = "submit answer",
+  problem_type = "ggplot2"
+)
+```
+
+
+
