@@ -1,5 +1,5 @@
 # parsons
-Exploration for parsons package
+Exploration for parsons package. Parsons problems is a type of programming assignment where the student can drag and drop the answer options into desired order
 
 # Installation
 
